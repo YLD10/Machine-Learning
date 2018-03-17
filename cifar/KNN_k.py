@@ -19,30 +19,34 @@ class NearestNeighbor(object):
         self.ytr = 0
         pass
 
-    def train(self, x, y):
+    def train(self, x_l, y_l):
         """ x is N x D where each row is an example. y is 1-dimension of size N """
         # the nearest neighbor classifier simply remembers all the training data
-        self.xtr = x
-        self.ytr = y
+        self.xtr = x_l
+        self.ytr = y_l
 
-    def predict(self, x, k_l=1):
+    def predict(self, x_l, k_l=1):
         """ x is N x D where each row is an example we wish to predict label for """
-        num_test = x.shape[0]
+        num_test = x_l.shape[0]
         # lets make sure that the output type matches the input type
         ypred = np.zeros(num_test, dtype=self.ytr.dtype)
 
         # loop over all test rows
-        for i in range(num_test):
-            print(i)
+        for i_l in range(num_test):
+            print(i_l)
             # find the nearest training image to the i'th test image
             # using the L1 distance (sum of absolute value differences)
-            distances = np.sum(np.abs(self.xtr - x[i, :]), axis=1)
+            distances = np.sum(np.abs(self.xtr - x_l[i_l, :]), axis=1)
             # distances = np.sqrt(np.sum(np.square(self.xtr - x[i, :]), axis=1))  # L2 distance
             # print(distances.shape)
             topn_index = np.argsort(distances)[:k_l]  # get the index with top k_l small distance
-            min_index = sorted([(np.sum(topn_index == e), e) for e in set(topn_index)])[-1][1]  # 投票
-            # print(min_index)
-            ypred[i] = self.ytr[min_index]  # predict the label of the nearest example
+            topn_label = self.ytr[topn_index]  # indexs are converted into labels
+            # print(topn_label)
+            tmp_list = sorted([(np.sum(topn_label == e), e) for e in set(topn_label)])  # 统计各标签的出现次数
+            # print(tmp_list)
+            most_label = tmp_list[-1][1]  # 取出重复次数最多的标签
+            # print(most_label)
+            ypred[i_l] = most_label  # predict the label of the k_l nearest example
 
         return ypred
 
@@ -85,8 +89,8 @@ def load_cifar10(file_path):
 
 
 # 只取前n个图像数据进行训练和测试
-def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n=100):
-    return xtr_l[:n, :], ytr_l[:n], xte_l[:n, :], yte_l[:n]
+def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n_l=100):
+    return xtr_l[:n_l, :], ytr_l[:n_l], xte_l[:n_l, :], yte_l[:n_l]
 
 
 # 设置控制台显示宽度以及取消科学计数法
