@@ -3,7 +3,7 @@
 # @Time     : 3/15/2018 22:55
 # @Author   : YLD10
 # @Email    : yl1315348050@yahoo.com
-# @File     : KNN.py
+# @File     : KNN_one.py
 # @Software : PyCharm
 # @reference: https://zhuanlan.zhihu.com/p/20894041?refer=intelligentunit
 
