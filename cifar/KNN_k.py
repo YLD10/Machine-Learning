@@ -15,15 +15,15 @@ import scipy.misc as mi
 
 class NearestNeighbor(object):
     def __init__(self):
-        self.xtr = 0
-        self.ytr = 0
+        self.xtr = np.zeros((1, 1))
+        self.ytr = np.zeros((1, 1))
         pass
 
     def train(self, x_l, y_l):
         """ x is N x D where each row is an example. y is 1-dimension of size N """
         # the nearest neighbor classifier simply remembers all the training data
-        self.xtr = x_l
-        self.ytr = y_l
+        self.xtr = np.array(x_l)
+        self.ytr = np.array(y_l)
 
     def predict(self, x_l, k_l=1):
         """ x is N x D where each row is an example we wish to predict label for """
@@ -33,11 +33,11 @@ class NearestNeighbor(object):
 
         # loop over all test rows
         for i_l in range(num_test):
-            print(i_l)
-            # find the nearest training image to the i'th test image
+            # print(i_l, end=' ')
+            # find the nearest training image to the i_l'th test image
             # using the L1 distance (sum of absolute value differences)
             distances = np.sum(np.abs(self.xtr - x_l[i_l, :]), axis=1)
-            # distances = np.sqrt(np.sum(np.square(self.xtr - x[i, :]), axis=1))  # L2 distance
+            # distances = np.sqrt(np.sum(np.square(self.xtr - x[i_l, :]), axis=1))  # L2 distance
             # print(distances.shape)
             topn_index = np.argsort(distances)[:k_l]  # get the index with top k_l small distance
             topn_label = self.ytr[topn_index]  # indexs are converted into labels
@@ -137,11 +137,11 @@ if __name__ == '__main__':
     # mi.imsave('one.jpg', img)
 
     # 设置要训练的数据量
-    ntr = 1000
-    nval = int(ntr * 0.2)
+    n = 1000
+    nval = int(n * 0.2)
 
     xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
-    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, ntr)  # 减少数据量至ntr个，缩短时间
+    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至n个，缩短时间
 
     # 增加验证集，从训练集中划分出来
     xval = xtr[:nval, :]  # take first nval for validation
@@ -164,7 +164,7 @@ if __name__ == '__main__':
         yval_predict = nn.predict(xval, k_l=k)  # predict labels on the validation images
         # and now print the classification accuracy, which is the average number
         # of examples that are correctly predicted (i.e. label matches)
-        acc = np.mean(yval_predict == yval)
+        acc = float(np.mean(yval_predict == yval))
         print('accuracy: %f' % (acc,))
 
         # keep track of what works on the validation set

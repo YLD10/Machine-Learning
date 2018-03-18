@@ -15,32 +15,32 @@ import scipy.misc as mi
 
 class NearestNeighbor(object):
     def __init__(self):
-        self.xtr = 0
-        self.ytr = 0
+        self.xtr = np.zeros((1, 1))
+        self.ytr = np.zeros((1, 1))
         pass
 
-    def train(self, x, y):
+    def train(self, x_l, y_l):
         """ x is N x D where each row is an example. y is 1-dimension of size N """
         # the nearest neighbor classifier simply remembers all the training data
-        self.xtr = x
-        self.ytr = y
+        self.xtr = np.array(x_l)
+        self.ytr = np.array(y_l)
 
-    def predict(self, x):
+    def predict(self, x_l, k_l=1):
         """ x is N x D where each row is an example we wish to predict label for """
-        num_test = x.shape[0]
+        num_test = x_l.shape[0]
         # lets make sure that the output type matches the input type
         ypred = np.zeros(num_test, dtype=self.ytr.dtype)
 
         # loop over all test rows
-        for i in range(num_test):
-            print(i)
-            # find the nearest training image to the i'th test image
+        for i_l in range(num_test):
+            # print(i_l, end=' ')
+            # find the nearest training image to the i_l'th test image
             # using the L1 distance (sum of absolute value differences)
-            distances = np.sum(np.abs(self.xtr - x[i, :]), axis=1)
+            distances = np.sum(np.abs(self.xtr - x_l[i_l, :]), axis=1)
             # print(distances)
             min_index = np.argmin(distances)   # get the index with smallest distance
             # print(min_index)
-            ypred[i] = self.ytr[min_index]  # predict the label of the nearest example
+            ypred[i_l] = self.ytr[min_index]  # predict the label of the nearest example
 
         return ypred
 
@@ -83,8 +83,8 @@ def load_cifar10(file_path):
 
 
 # 只取前n个图像数据进行训练和测试
-def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n=100):
-    return xtr_l[:n, :], ytr_l[:n], xte_l[:n, :], yte_l[:n]
+def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n_l=100):
+    return xtr_l[:n_l, :], ytr_l[:n_l], xte_l[:n_l, :], yte_l[:n_l]
 
 
 if __name__ == '__main__':
@@ -130,8 +130,11 @@ if __name__ == '__main__':
     #
     # mi.imsave('one.jpg', img)
 
+    # 设置要训练的数据量
+    n = 500
+
     xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
-    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, 500)  # 减少数据量至n个，缩短时间
+    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至n个，缩短时间
 
     print('xtr: ', xtr.shape)  # 50000 x 3072
     print('xte: ', xte.shape)  # 10000 x 3072
