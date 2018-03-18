@@ -15,6 +15,7 @@ import matplotlib as mpl
 import scipy.misc as mi
 import matplotlib.pyplot as plt
 
+
 # 主类
 class NearestNeighbor(object):
     def __init__(self):
@@ -36,7 +37,7 @@ class NearestNeighbor(object):
 
         # loop over all test rows
         for i_l in range(num_test):
-            print(i_l, end=' ')
+            # print(i_l, end=' ')
             # find the nearest training image to the i'th test image
             # using the L1 distance (sum of absolute value differences)
             distances = np.sum(np.abs(self.xtr - x_l[i_l, :]), axis=1)
@@ -170,102 +171,103 @@ def get_cross_validation_set(xtr_l, ytr_l, c_l):
     return np.array(xtr_cross), np.array(xval_cross), np.array(ytr_cross), np.array(yval_cross)
 
 
-# 设置控制台显示宽度以及取消科学计数法
-pd.set_option('display.width', 300)
-np.set_printoptions(suppress=True)
+if __name__ == '__main__':
+    # 设置控制台显示宽度以及取消科学计数法
+    pd.set_option('display.width', 300)
+    np.set_printoptions(suppress=True)
 
-# 解决图表的中文以及负号的乱码问题
-mpl.rcParams['font.sans-serif'] = [u'simHei']
-mpl.rcParams['axes.unicode_minus'] = False
+    # 解决图表的中文以及负号的乱码问题
+    mpl.rcParams['font.sans-serif'] = [u'simHei']
+    mpl.rcParams['axes.unicode_minus'] = False
 
-MODEL_PATH = './'
-CIFAR_PATH = 'cifar-10/cifar-10-python/cifar-10-batches-py/'
+    MODEL_PATH = './'
+    CIFAR_PATH = 'cifar-10/cifar-10-python/cifar-10-batches-py/'
 
-batches = 'batches.meta'
-data1_file = 'data_batch_1'
-data2_file = 'data_batch_2'
-data3_file = 'data_batch_3'
-data4_file = 'data_batch_4'
-data5_file = 'data_batch_5'
-test_file = 'test_batch'
+    batches = 'batches.meta'
+    data1_file = 'data_batch_1'
+    data2_file = 'data_batch_2'
+    data3_file = 'data_batch_3'
+    data4_file = 'data_batch_4'
+    data5_file = 'data_batch_5'
+    test_file = 'test_batch'
 
-# 保存第一张图片，验证图片数据是否准确提取
-# img_dict = unpickle(MODEL_PATH + CIFAR_PATH + data1_file)
-#
-# # print(img_dict[b'data'].dtype)
-#
-# r = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-# g = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-# b = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-#
-# r = img_dict[b'data'][:1, :1024].reshape(32, 32)
-# g = img_dict[b'data'][:1, 1024:2048].reshape(32, 32)
-# b = img_dict[b'data'][:1, 2048:].reshape(32, 32)
-#
-# print(r)
-# print(g)
-# print(b)
-#
-# img = np.dstack([r, g, b])
-#
-# print(img.shape)
-#
-# mi.imsave('one.jpg', img)
+    # 保存第一张图片，验证图片数据是否准确提取
+    # img_dict = unpickle(MODEL_PATH + CIFAR_PATH + data1_file)
+    #
+    # # print(img_dict[b'data'].dtype)
+    #
+    # r = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    # g = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    # b = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    #
+    # r = img_dict[b'data'][:1, :1024].reshape(32, 32)
+    # g = img_dict[b'data'][:1, 1024:2048].reshape(32, 32)
+    # b = img_dict[b'data'][:1, 2048:].reshape(32, 32)
+    #
+    # print(r)
+    # print(g)
+    # print(b)
+    #
+    # img = np.dstack([r, g, b])
+    #
+    # print(img.shape)
+    #
+    # mi.imsave('one.jpg', img)
 
-# 设置要训练的数据量
-n = 2000
-# 设置交叉验证折数
-c = 5
+    # 设置要训练的数据量
+    n = 2000
+    # 设置交叉验证折数
+    c = 5
 
-xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
-xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至ntr个，缩短时间
+    xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
+    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至ntr个，缩短时间
 
-# 产生交叉验证集
-x_train, x_vali, y_train, y_vali = get_cross_validation_set(xtr, ytr, c)
-# print(x_train)
-print('x_train: ', x_train.shape)
-print('x_vali: ', x_vali.shape)
-print('y_train: ', y_train.shape)
-print('y_vali: ', y_vali.shape)
+    # 产生交叉验证集
+    x_train, x_vali, y_train, y_vali = get_cross_validation_set(xtr, ytr, c)
+    # print(x_train)
+    print('x_train: ', x_train.shape)
+    print('x_vali: ', x_vali.shape)
+    print('y_train: ', y_train.shape)
+    print('y_vali: ', y_vali.shape)
 
-# find hyperparameters that work best on the validation set
-validation_accuracies = []
-# 保存每一次验证结果以供绘图
-vali_acc = []
-for k in [1, 3, 5, 7, 10, 15, 20, 50, 100]:
-    # 保存每一次验证结果的平均值以供绘图
-    validation_acc = []
-    for i in range(c):
-        # use a particular value of k and evaluation on validation data
-        nn = NearestNeighbor()  # create a Nearest Neighbor classifier class
-        nn.train(x_train[i], y_train[i])  # train the classifier on the training images and labels
-        # here we assume a modified NearestNeighbor class that can take a k as input
-        yval_predict = nn.predict(x_vali[i], k_l=k)  # predict labels on the validation images
-        # and now print the classification accuracy, which is the average number
-        # of examples that are correctly predicted (i.e. label matches)
-        acc = np.mean(yval_predict == y_vali[i])
-        print('k = %f, accuracy: %f' % (k, acc,))
-        validation_acc.append(acc)
-        # 保存验证结果
-        vali_acc.append((k, acc))
+    # find hyperparameters that work best on the validation set
+    validation_accuracies = []
+    # 保存每一次验证结果以供绘图
+    vali_acc = []
+    for k in [1, 3, 5, 7, 9, 11, 13, 15, 20, 50, 100]:
+        # 保存每一次验证结果的平均值以供绘图
+        validation_acc = []
+        for i in range(c):
+            # use a particular value of k and evaluation on validation data
+            nn = NearestNeighbor()  # create a Nearest Neighbor classifier class
+            nn.train(x_train[i], y_train[i])  # train the classifier on the training images and labels
+            # here we assume a modified NearestNeighbor class that can take a k as input
+            yval_predict = nn.predict(x_vali[i], k_l=k)  # predict labels on the validation images
+            # and now print the classification accuracy, which is the average number
+            # of examples that are correctly predicted (i.e. label matches)
+            acc = np.mean(yval_predict == y_vali[i])
+            print('k = %d, accuracy: %f' % (k, acc,))
+            validation_acc.append(acc)
+            # 保存验证结果
+            vali_acc.append((k, acc))
 
-    # keep track of what works on the validation set
-    validation_accuracies.append((k, np.mean(validation_acc)))
+        # keep track of what works on the validation set
+        validation_accuracies.append((k, np.mean(validation_acc)))
 
-validation_accuracies = np.array(validation_accuracies)
-vali_acc = np.array(vali_acc)
-print('validation_accuracies:\n', validation_accuracies)
-print('vali_acc:\n', vali_acc)
+    validation_accuracies = np.array(validation_accuracies)
+    vali_acc = np.array(vali_acc)
+    print('validation_accuracies:\n', validation_accuracies)
+    print('vali_acc:\n', vali_acc)
 
-# 绘图看结果
-fig = plt.figure()
-fig.set(alpha=0.2)  # 设定图表颜色 alpha 参数，即透明度
-plt.title('Cross-validation on k')
-plt.xlabel('k')
-plt.ylabel('Cross-validation accuracy')
-plt.scatter(vali_acc[:, 0], vali_acc[:, 1])
-plt.plot(validation_accuracies[:, 0], validation_accuracies[:, 1], '^-', color='r', label='accuracies mean')
-plt.vlines(validation_accuracies[:, 0], 0.8 * validation_accuracies[:, 1], 1.2 * validation_accuracies[:, 1],
-           colors='b', linestyles='dashed')
-plt.legend(loc='best')
-plt.show()
+    # 绘图看结果
+    fig = plt.figure()
+    fig.set(alpha=0.2)  # 设定图表颜色 alpha 参数，即透明度
+    plt.title('Cross-validation on k')
+    plt.xlabel('k')
+    plt.ylabel('Cross-validation accuracy')
+    plt.scatter(vali_acc[:, 0], vali_acc[:, 1])
+    plt.plot(validation_accuracies[:, 0], validation_accuracies[:, 1], '^-', color='r', label='accuracies mean')
+    plt.vlines(validation_accuracies[:, 0], 0.9 * validation_accuracies[:, 1], 1.1 * validation_accuracies[:, 1],
+               colors='b', linestyles='dashed')
+    plt.legend(loc='best')
+    plt.show()

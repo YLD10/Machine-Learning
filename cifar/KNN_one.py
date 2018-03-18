@@ -87,59 +87,60 @@ def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n=100):
     return xtr_l[:n, :], ytr_l[:n], xte_l[:n, :], yte_l[:n]
 
 
-# 设置控制台显示宽度以及取消科学计数法
-pd.set_option('display.width', 300)
-np.set_printoptions(suppress=True)
+if __name__ == '__main__':
+    # 设置控制台显示宽度以及取消科学计数法
+    pd.set_option('display.width', 300)
+    np.set_printoptions(suppress=True)
 
-# 解决图表的中文以及负号的乱码问题
-mpl.rcParams['font.sans-serif'] = [u'simHei']
-mpl.rcParams['axes.unicode_minus'] = False
+    # 解决图表的中文以及负号的乱码问题
+    mpl.rcParams['font.sans-serif'] = [u'simHei']
+    mpl.rcParams['axes.unicode_minus'] = False
 
-MODEL_PATH = './'
-CIFAR_PATH = 'cifar-10/cifar-10-python/cifar-10-batches-py/'
+    MODEL_PATH = './'
+    CIFAR_PATH = 'cifar-10/cifar-10-python/cifar-10-batches-py/'
 
-batches = 'batches.meta'
-data1_file = 'data_batch_1'
-data2_file = 'data_batch_2'
-data3_file = 'data_batch_3'
-data4_file = 'data_batch_4'
-data5_file = 'data_batch_5'
-test_file = 'test_batch'
+    batches = 'batches.meta'
+    data1_file = 'data_batch_1'
+    data2_file = 'data_batch_2'
+    data3_file = 'data_batch_3'
+    data4_file = 'data_batch_4'
+    data5_file = 'data_batch_5'
+    test_file = 'test_batch'
 
-# 保存第一张图片，验证图片数据是否准确提取
-# img_dict = unpickle(MODEL_PATH + CIFAR_PATH + data1_file)
-#
-# # print(img_dict[b'data'].dtype)
-#
-# r = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-# g = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-# b = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
-#
-# r = img_dict[b'data'][:1, :1024].reshape(32, 32)
-# g = img_dict[b'data'][:1, 1024:2048].reshape(32, 32)
-# b = img_dict[b'data'][:1, 2048:].reshape(32, 32)
-#
-# print(r)
-# print(g)
-# print(b)
-#
-# img = np.dstack([r, g, b])
-#
-# print(img.shape)
-#
-# mi.imsave('one.jpg', img)
+    # 保存第一张图片，验证图片数据是否准确提取
+    # img_dict = unpickle(MODEL_PATH + CIFAR_PATH + data1_file)
+    #
+    # # print(img_dict[b'data'].dtype)
+    #
+    # r = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    # g = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    # b = np.zeros((32, 32), dtype=img_dict[b'data'].dtype)
+    #
+    # r = img_dict[b'data'][:1, :1024].reshape(32, 32)
+    # g = img_dict[b'data'][:1, 1024:2048].reshape(32, 32)
+    # b = img_dict[b'data'][:1, 2048:].reshape(32, 32)
+    #
+    # print(r)
+    # print(g)
+    # print(b)
+    #
+    # img = np.dstack([r, g, b])
+    #
+    # print(img.shape)
+    #
+    # mi.imsave('one.jpg', img)
 
-xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
-xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, 500)  # 减少数据量至n个，缩短时间
+    xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
+    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, 500)  # 减少数据量至n个，缩短时间
 
-print('xtr: ', xtr.shape)  # 50000 x 3072
-print('xte: ', xte.shape)  # 10000 x 3072
-print('ytr: ', ytr.shape)  # 1 x 50000
-print('yte: ', yte.shape)  # 1 x 10000
+    print('xtr: ', xtr.shape)  # 50000 x 3072
+    print('xte: ', xte.shape)  # 10000 x 3072
+    print('ytr: ', ytr.shape)  # 1 x 50000
+    print('yte: ', yte.shape)  # 1 x 10000
 
-nn = NearestNeighbor()  # create a Nearest Neighbor classifier class
-nn.train(xtr, ytr)  # train the classifier on the training images and labels
-yte_predict = nn.predict(xte)  # predict labels on the test images
-# and now print the classification accuracy, which is the average number
-# of examples that are correctly predicted (i.e. label matches)
-print('accuracy: %f' % (np.mean(yte_predict == yte)))
+    nn = NearestNeighbor()  # create a Nearest Neighbor classifier class
+    nn.train(xtr, ytr)  # train the classifier on the training images and labels
+    yte_predict = nn.predict(xte)  # predict labels on the test images
+    # and now print the classification accuracy, which is the average number
+    # of examples that are correctly predicted (i.e. label matches)
+    print('accuracy: %f' % (np.mean(yte_predict == yte)))
