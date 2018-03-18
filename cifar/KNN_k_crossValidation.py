@@ -12,22 +12,22 @@
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
-import scipy.misc as mi
+# import scipy.misc as mi
 import matplotlib.pyplot as plt
 
 
 # 主类
 class NearestNeighbor(object):
     def __init__(self):
-        self.xtr = 0
-        self.ytr = 0
+        self.xtr = np.zeros((1, 1))
+        self.ytr = np.zeros((1, 1))
         pass
 
     def train(self, x_l, y_l):
         """ x is N x D where each row is an example. y is 1-dimension of size N """
         # the nearest neighbor classifier simply remembers all the training data
-        self.xtr = x_l
-        self.ytr = y_l
+        self.xtr = np.array(x_l)
+        self.ytr = np.array(y_l)
 
     def predict(self, x_l, k_l=1):
         """ x is N x D where each row is an example we wish to predict label for """
@@ -38,10 +38,10 @@ class NearestNeighbor(object):
         # loop over all test rows
         for i_l in range(num_test):
             # print(i_l, end=' ')
-            # find the nearest training image to the i'th test image
+            # find the nearest training image to the i_l'th test image
             # using the L1 distance (sum of absolute value differences)
             distances = np.sum(np.abs(self.xtr - x_l[i_l, :]), axis=1)
-            # distances = np.sqrt(np.sum(np.square(self.xtr - x[i, :]), axis=1))  # L2 distance
+            # distances = np.sqrt(np.sum(np.square(self.xtr - x[i_l, :]), axis=1))  # L2 distance
             # print(distances.shape)
             topn_index = np.argsort(distances)[:k_l]  # get the index with top k_l small distance
             topn_label = self.ytr[topn_index]  # indexs are converted into labels
@@ -99,41 +99,46 @@ def cut_x_y(xtr_l, ytr_l, xte_l, yte_l, n_l=100):
 
 # 划分数组
 def splist(arr, c_l):
-    tmp_l = []
-    step = arr.shape[0] // c_l
-    for i_l in range(c):
-        if i_l != c - 1:
-            tmp_l.append(arr[i_l * step:(i_l + 1) * step])
-        else:
-            tmp_l.append(arr[i_l * step:])
-    # print('tmp_l:\n', tmp_l)
+    c_l = int(c_l)
+    if c_l < 1:
+        print('c 不可小于1！')
+        exit(0)
+    else:
+        tmp_l = []
+        step = arr.shape[0] // c_l
+        for i_l in range(c_l):
+            if i_l != c - 1:
+                tmp_l.append(arr[i_l * step:(i_l + 1) * step])
+            else:
+                tmp_l.append(arr[i_l * step:])
+        # print('tmp_l:\n', tmp_l)
 
-    return tmp_l
+        return tmp_l
 
 
 # # 产生交叉验证数组array([(训练集1)，(验证集1)], [(训练集2)，(验证集2)], ...)
-# def get_cross_validation_set(xtr_l, ytr_l, c):
+# def get_cross_validation_set(xtr_l, ytr_l, c_l):
 #     """训练集：xtr_c, ytr_c；验证集: xval_c, yval_c"""
 #     xtr_s = splist(xtr_l, c)
 #     ytr_s = splist(ytr_l, c)
 #     # print('xtr_s:\n', xtr_s)
 #     # print('ytr_s:\n', ytr_s)
-#     x_c = np.zeros((c, 2), dtype=tuple)
-#     for i in range(c):
+#     x_c = np.zeros((c_l, 2), dtype=tuple)
+#     for i_l in range(c_l):
 #         xtr_c = []
 #         ytr_c = []
 #         # 取第i份作为验证集
-#         xval_c = xtr_s[i]
-#         yval_c = ytr_s[i]
-#         for j in range(c):
+#         xval_c = xtr_s[i_l]
+#         yval_c = ytr_s[i_l]
+#         for j_l in range(c_l):
 #             # 取除第i份以外的其他份作为训练集
-#             if i != j:
-#                 xtr_c.extend(xtr_s[j])
-#                 ytr_c.extend(ytr_s[j])
+#             if i_l != j_l:
+#                 xtr_c.extend(xtr_s[j_l])
+#                 ytr_c.extend(ytr_s[j_l])
 #
 #         # print('xtr_c:\n', xtr_c)
 #         # print('ytr_c:\n', ytr_c)
-#         x_c[i] = [(np.array(xtr_c), ytr_c), (np.array(xval_c), yval_c)]
+#         x_c[i_l] = [(np.array(xtr_c), ytr_c), (np.array(xval_c), yval_c)]
 #
 #     return x_c
 
@@ -141,34 +146,39 @@ def splist(arr, c_l):
 # 产生交叉验证数集xtr_cross, ytr_cross, xval_cross, yval_cross
 def get_cross_validation_set(xtr_l, ytr_l, c_l):
     """训练集：xtr_cross, ytr_cross；验证集: xval_cross, yval_cross"""
-    xtr_s = splist(xtr_l, c_l)
-    ytr_s = splist(ytr_l, c_l)
-    xtr_cross = []
-    xval_cross = []
-    ytr_cross = []
-    yval_cross = []
-    # print('xtr_s:\n', xtr_s)
-    # print('ytr_s:\n', ytr_s)
-    for i_l in range(c_l):
-        xtr_c = []
-        ytr_c = []
-        # 取第i份作为验证集
-        xval_c = xtr_s[i_l]
-        yval_c = ytr_s[i_l]
-        for j_l in range(c_l):
-            # 取除第i份以外的其他份作为训练集
-            if i_l != j_l:
-                xtr_c.extend(xtr_s[j_l])
-                ytr_c.extend(ytr_s[j_l])
+    c_l = int(c_l)
+    if c_l < 2:
+        print('交叉验证集划分不可小于两份！')
+        exit(0)
+    else:
+        xtr_s = splist(xtr_l, c_l)
+        ytr_s = splist(ytr_l, c_l)
+        xtr_cross = []
+        xval_cross = []
+        ytr_cross = []
+        yval_cross = []
+        # print('xtr_s:\n', xtr_s)
+        # print('ytr_s:\n', ytr_s)
+        for i_l in range(c_l):
+            xtr_c = []
+            ytr_c = []
+            # 取第i份作为验证集
+            xval_c = xtr_s[i_l]
+            yval_c = ytr_s[i_l]
+            for j_l in range(c_l):
+                # 取除第i份以外的其他份作为训练集
+                if i_l != j_l:
+                    xtr_c.extend(xtr_s[j_l])
+                    ytr_c.extend(ytr_s[j_l])
 
-        # print('xtr_c:\n', xtr_c)
-        # print('ytr_c:\n', ytr_c)
-        xtr_cross.append(np.array(xtr_c))
-        xval_cross.append(np.array(xval_c))
-        ytr_cross.append(ytr_c)
-        yval_cross.append(yval_c)
+            # print('xtr_c:\n', xtr_c)
+            # print('ytr_c:\n', ytr_c)
+            xtr_cross.append(np.array(xtr_c))
+            xval_cross.append(np.array(xval_c))
+            ytr_cross.append(ytr_c)
+            yval_cross.append(yval_c)
 
-    return np.array(xtr_cross), np.array(xval_cross), np.array(ytr_cross), np.array(yval_cross)
+        return np.array(xtr_cross), np.array(xval_cross), np.array(ytr_cross), np.array(yval_cross)
 
 
 if __name__ == '__main__':
@@ -220,7 +230,7 @@ if __name__ == '__main__':
     c = 5
 
     xtr, ytr, xte, yte = load_cifar10(MODEL_PATH + CIFAR_PATH)
-    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至ntr个，缩短时间
+    xtr, ytr, xte, yte = cut_x_y(xtr, ytr, xte, yte, n)  # 减少数据量至n个，缩短时间
 
     # 产生交叉验证集
     x_train, x_vali, y_train, y_vali = get_cross_validation_set(xtr, ytr, c)
@@ -237,7 +247,7 @@ if __name__ == '__main__':
     for k in [1, 3, 5, 7, 9, 11, 13, 15, 20, 50, 100]:
         # 保存每一次验证结果的平均值以供绘图
         validation_acc = []
-        for i in range(c):
+        for i in range(int(c)):
             # use a particular value of k and evaluation on validation data
             nn = NearestNeighbor()  # create a Nearest Neighbor classifier class
             nn.train(x_train[i], y_train[i])  # train the classifier on the training images and labels
@@ -245,8 +255,8 @@ if __name__ == '__main__':
             yval_predict = nn.predict(x_vali[i], k_l=k)  # predict labels on the validation images
             # and now print the classification accuracy, which is the average number
             # of examples that are correctly predicted (i.e. label matches)
-            acc = np.mean(yval_predict == y_vali[i])
-            print('k = %d, accuracy: %f' % (k, acc,))
+            acc = float(np.mean(yval_predict == y_vali[i]))
+            print('k = %d, accuracy: %f' % (k, acc))
             validation_acc.append(acc)
             # 保存验证结果
             vali_acc.append((k, acc))
